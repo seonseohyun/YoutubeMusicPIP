@@ -1,0 +1,10 @@
+# OS / 에디터
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/
+
+# 작업 중 임시 파일
+*.png
+_*.html
+node_modules/

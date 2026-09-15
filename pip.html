@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YTM PiP</title>
+<link rel="stylesheet" href="pip.css">
+</head>
+<!-- --art 는 pip.js 가 실제 앨범아트로 덮어씀. 아래는 미리보기용 -->
+<body style="--art: url(https://picsum.photos/seed/surfin/800)">
+  <div class="bg"></div>
+
+  <div class="card">
+    <div class="art"></div>
+    <div class="meta">
+      <div class="title">Surfin' Boy</div>
+      <div class="artist">Red Velvet • Velvet Summer - Summer Mini Album</div>
+    </div>
+    <div class="ctrl">
+      <button class="like" title="좋아요"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-9.3-9A5.4 5.4 0 0 1 12 6.3 5.4 5.4 0 0 1 21.3 12C19 16.4 12 21 12 21z"/></svg></button>
+      <button class="prev" title="이전"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+      <button class="play" title="재생/일시정지">
+        <svg viewBox="0 0 24 24"><path d="M6 4v16l14-8z"/></svg>
+        <svg viewBox="0 0 24 24" hidden><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+      </button>
+      <button class="next" title="다음"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+      <button class="tab" title="유튜브 뮤직 탭으로"><svg viewBox="0 0 24 24"><path d="M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14zM5 5h6v2H7v10h10v-4h2v6H5z"/></svg></button>
+    </div>
+    <div class="bar" style="--p:38%"><div class="track"><div class="fill"></div></div><div class="thumb"></div></div>
+  </div>
+
+<script>
+  // 미리보기용 목업. 확장에서는 pip.js 가 대신 연결 (innerHTML 로 넣으면 이 스크립트는 실행 안 됨)
+  const card = document.querySelector('.card');
+  card.onpointermove = e => { const r = card.getBoundingClientRect();
+    card.style.setProperty('--mx', e.clientX - r.left + 'px'); card.style.setProperty('--my', e.clientY - r.top + 'px'); };
+  document.querySelector('.play').onclick = e => e.currentTarget.querySelectorAll('svg').forEach(s => s.hidden = !s.hidden);
+  document.querySelector('.like').onclick = e => e.currentTarget.classList.toggle('liked');
+  const bar = document.querySelector('.bar');
+  bar.onclick = e => bar.style.setProperty('--p', (e.offsetX / bar.clientWidth * 100).toFixed(1) + '%');
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+:root {
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --text: rgba(255,255,255,.96);
+  --sub: rgba(255,255,255,.62);
+  --r: clamp(14px, 4vmin, 24px);
+  --pad: clamp(10px, 2.5vmin, 16px);
+  --btn: clamp(26px, 7vmin, 36px);
+  --art-size: clamp(48px, 100vh - 130px, 120px);   /* 가로 모드: 높이에 맞춰 */
+  --mx: 50%; --my: 50%;
+}
+* { box-sizing: border-box; margin: 0; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  overflow: hidden; background: #0a0a12; color: var(--text);
+  font: 13px/1.3 -apple-system, "SF Pro Text", "Segoe UI", Pretendard, sans-serif;
+  -webkit-font-smoothing: antialiased; user-select: none;
+  padding: clamp(6px, 1.5vmin, 10px);
+}
+
+/* 앨범아트를 크게 깔고 블러 → 유리가 굴절할 대상 */
+.bg { position: fixed; inset: -30%; z-index: -1; background: var(--art) center/cover;
+  filter: blur(50px) saturate(1.6) brightness(.7); animation: breathe 20s ease-in-out infinite alternate; }
+@keyframes breathe { to { transform: scale(1.15) rotate(3deg); } }
+
+/* Liquid Glass 카드 */
+.card {
+  position: relative; width: 100%; height: 100%; padding: var(--pad);
+  border-radius: var(--r);
+  background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.03) 60%);
+  backdrop-filter: blur(30px) saturate(1.8); -webkit-backdrop-filter: blur(30px) saturate(1.8);
+  box-shadow: 0 24px 60px rgba(0,0,0,.35);
+  display: grid; gap: clamp(6px, 2vmin, 12px) clamp(10px, 3vmin, 16px);
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto auto;
+  grid-template-areas: "art meta" "ctrl ctrl" "bar bar";
+  animation: pop .6s var(--spring) both;
+}
+@keyframes pop { from { transform: scale(.9); opacity: 0; } }
+/* 마우스 따라오는 광택 */
+.card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(260px circle at var(--mx) var(--my), rgba(255,255,255,.2), transparent 60%);
+  transition: opacity .4s; opacity: 0; }
+.card:hover::after { opacity: 1; }
+
+.art { grid-area: art; width: var(--art-size); aspect-ratio: 1; border-radius: calc(var(--r) * .55); align-self: center;
+  background: var(--art) center/cover;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  transition: transform .5s var(--spring); }
+.card:hover .art { transform: scale(1.02); }
+
+.meta { grid-area: meta; min-width: 0; align-self: center; }
+.title { font-weight: 600; font-size: clamp(14px, 3.5vmin, 18px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.artist { color: var(--sub); font-size: clamp(11px, 2.8vmin, 14px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+
+/* 컨트롤: 배경 없는 플랫 아이콘 */
+.ctrl { grid-area: ctrl; display: flex; align-items: center; justify-content: space-evenly; }
+.ctrl button { all: unset; cursor: pointer; display: grid; place-items: center; color: var(--text); opacity: .8;
+  width: var(--btn); aspect-ratio: 1;
+  transition: transform .45s var(--spring), opacity .2s; }
+.ctrl button:hover { opacity: 1; transform: scale(1.15); }
+.ctrl button:active { transform: scale(.8); transition-duration: .1s; }
+.ctrl svg { width: 60%; fill: currentColor; filter: drop-shadow(0 1px 2px rgba(0,0,0,.35)); }
+.ctrl .play { opacity: 1; }
+.ctrl .play svg { width: 85%; transition: transform .4s var(--spring); }
+.ctrl .play:active svg { transform: scale(.7); }
+.ctrl .liked { color: #ff5c8a; opacity: 1; }
+
+/* 진행바 */
+.bar { grid-area: bar; position: relative; height: 12px; cursor: pointer; display: flex; align-items: center; }
+.bar .track { width: 100%; height: 3px; border-radius: 3px; background: rgba(255,255,255,.22); overflow: hidden; transition: height .3s var(--spring); }
+.bar:hover .track { height: 6px; }
+.bar .fill { height: 100%; width: var(--p, 0%); background: #fff; box-shadow: 0 0 10px rgba(255,255,255,.8); border-radius: inherit; }
+.bar .thumb { position: absolute; left: var(--p, 0%); width: 12px; height: 12px; border-radius: 50%; background: #fff;
+  transform: translateX(-50%) scale(0); box-shadow: 0 0 0 3px rgba(255,255,255,.25), 0 2px 8px rgba(0,0,0,.3);
+  transition: transform .35s var(--spring); }
+.bar:hover .thumb { transform: translateX(-50%) scale(1); }
+
+/* 1) 미니: 아트 + 제목만. 호버하면 제목 자리에 컨트롤이 떠오르고 바닥에 진행바 */
+@media (max-height: 110px) {
+  :root { --art-size: clamp(32px, 100vh - 56px, 64px); --btn: 26px; }   /* 위아래 최소 10px 씩 */
+  .card { grid-template-rows: 1fr; grid-template-areas: "art meta"; }
+  .meta, .ctrl { grid-area: meta; align-self: center; transition: opacity .2s, transform .4s var(--spring); }
+  .ctrl { opacity: 0; transform: translateY(8px); pointer-events: none; }
+  .card:hover .ctrl { opacity: 1; transform: none; pointer-events: auto; }
+  .card:hover .meta { opacity: 0; transform: translateY(-8px); pointer-events: none; }
+  .bar { position: absolute; left: var(--pad); right: var(--pad); bottom: 2px; height: 8px; opacity: 0; transition: opacity .2s; }
+  .card:hover .bar { opacity: 1; }
+}
+/* 3) 세로형: 아트 위로, 가운데 정렬. 높이가 남으면 아트가 가로 꽉 차게 자람 (= 4단계) */
+@media (min-height: 200px) and (max-aspect-ratio: 2/1) {
+  :root { --art-size: min(100%, max(72px, 100vh - 170px)); }
+  .card { grid-template-columns: 1fr; grid-template-rows: auto auto auto auto; align-content: center;
+    grid-template-areas: "art" "meta" "ctrl" "bar"; justify-items: center; text-align: center; }
+  .meta { width: 100%; }
+  .ctrl { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

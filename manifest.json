@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "YTM Glass PiP",
+  "version": "0.1",
+  "description": "유튜브 뮤직 미니 플레이어 (Document Picture-in-Picture)",
+  "action": { "default_title": "YouTube Music PiP (Alt+P)" },
+  "permissions": ["scripting", "activeTab"],
+  "background": { "service_worker": "sw.js" },
+  "commands": { "_execute_action": { "suggested_key": { "default": "Alt+P" } } }
+}
