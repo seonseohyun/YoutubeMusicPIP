@@ -1,6 +1,6 @@
 # GlassTune
 
-유튜브 뮤직 미니 플레이어. 애플 리퀴드 글래스 스타일에, 창 크기에 따라 알약부터 풀 앨범아트까지 변신합니다.
+유튜브 뮤직 미니 플레이어. 애플 리퀴드 글래스 스타일
 
 Liquid Glass mini player for YouTube Music. Always-on-top, resizes from a pill to full album art.
 
