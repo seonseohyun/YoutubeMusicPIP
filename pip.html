@@ -34,7 +34,7 @@
   const card = document.querySelector('.card');
   card.onpointermove = e => { const r = card.getBoundingClientRect();
     card.style.setProperty('--mx', e.clientX - r.left + 'px'); card.style.setProperty('--my', e.clientY - r.top + 'px'); };
-  document.querySelector('.play').onclick = e => e.currentTarget.querySelectorAll('svg').forEach(s => s.hidden = !s.hidden);
+  document.querySelector('.play').onclick = e => e.currentTarget.querySelectorAll('svg').forEach(s => s.toggleAttribute('hidden'));
   document.querySelector('.like').onclick = e => e.currentTarget.classList.toggle('liked');
   const bar = document.querySelector('.bar');
   bar.onclick = e => bar.style.setProperty('--p', (e.offsetX / bar.clientWidth * 100).toFixed(1) + '%');
