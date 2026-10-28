@@ -9,8 +9,8 @@ const html = fs.readFileSync('pip.html', 'utf8')
 const js = fs.readFileSync('pip.js', 'utf8')
   .replace(/^\s*\/\/.*$/gm, '')                       // 주석 제거 (플레이스홀더 오치환 방지 + 용량)
   .replace('__HTML__', JSON.stringify(html));
-fs.writeFileSync('pip.bundle.js', js);                    // 확장이 executeScript 로 주입
-const href = 'javascript:' + encodeURIComponent(js);      // 북마클릿
+fs.writeFileSync('pip.bundle.js', js);                    // 확장 content script (깔아두기만, 여는 건 단축키·아이콘)
+const href = 'javascript:' + encodeURIComponent(js + ';window.__ytmPipToggle?.()');   // 북마클릿은 누르면 바로 열기
 
 fs.writeFileSync('bookmarklet.html', `<!doctype html><meta charset="utf-8"><title>YTM PiP 설치</title>
 <body style="font:15px/1.6 system-ui;padding:40px;max-width:560px;margin:auto">
