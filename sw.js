@@ -1,4 +1,4 @@
-// 툴바 아이콘 / Alt+P. 유튜브 뮤직이 아닌 탭이면 유튜브 뮤직 탭으로 데려가고, 맞으면 창을 열고 닫는다.
+// 툴바 아이콘 (단축키는 기본으로 비워 둠. chrome://extensions/shortcuts 에서 직접 지정). 유튜브 뮤직이 아닌 탭이면 유튜브 뮤직 탭으로 데려가고, 맞으면 창을 열고 닫는다.
 chrome.action.onClicked.addListener(async tab => {
   if (!tab.url?.startsWith('https://music.youtube.com/')) {
     const [ytm] = await chrome.tabs.query({ url: 'https://music.youtube.com/*' });

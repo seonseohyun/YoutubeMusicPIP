@@ -1,13 +1,16 @@
 // 본체. build.js 가 __HTML__ 을 pip.html(+pip.css 인라인) 문자열로 바꿔서 pip.bundle.js / bookmarklet.html 을 만든다.
-// 확장: 유튜브 뮤직 페이지(앱 창 포함)에 content script 로 미리 깔리고, Alt+P · 툴바 아이콘 · 미디어 컨트롤의 PiP 버튼 · 탭 전환 시 자동으로 창이 뜬다.
+// 확장: 유튜브 뮤직 페이지(앱 창 포함)에 content script 로 미리 깔리고, 툴바 아이콘 · 미디어 컨트롤의 PiP 버튼 · 탭 전환 시 자동으로 창이 뜬다.
 // 북마클릿: build.js 가 끝에 __ytmPipToggle() 호출을 붙여서 누르는 즉시 뜬다.
 (() => {
   if (location.host !== 'music.youtube.com') { alert('music.youtube.com 탭에서 눌러주세요'); return; }
   if (window.__ytmPipToggle) return;   // 이미 깔려 있음 (content script + executeScript 중복 주입)
 
   const HTML = __HTML__;
-  // video 엘리먼트는 곡/영상 전환 때 갈아끼워질 수 있어서 매번 새로 찾는다
-  const video = () => document.querySelector('#movie_player video') || document.querySelector('video');
+  // 페이지에 video 가 여러 개일 수 있어서(미리보기 등) 실제로 재생 중인 것 → 곡이 걸린 것 순으로 고른다. 곡 전환 때 갈아끼워질 수 있어 매번 새로 찾음
+  const video = () => {
+    const vs = [...document.querySelectorAll('video')];
+    return vs.find(v => !v.paused && !v.ended) || vs.find(v => v.currentSrc && v.duration) || vs[0];
+  };
   const yt = s => document.querySelector('ytmusic-player-bar ' + s);
   // 커스텀 엘리먼트 껍데기 대신 안쪽 진짜 button 을 누른다 (클릭은 껍데기까지 버블링되니 어느 쪽 핸들러든 받음)
   const press = (...sels) => {
@@ -20,7 +23,10 @@
   const likeBtn = () => yt('#button-shape-like button') || yt('.like button');
 
   const ctl = {
-    play() { const v = video(); if (v) v.paused ? v.play() : v.pause(); },
+    play() {
+      if (press('#play-pause-button')) return;
+      const v = video(); if (v) v.paused ? v.play() : v.pause();
+    },
     next() {
       if (press('.next-button', '[aria-label="다음 곡"]', '[aria-label="Next"]')) return;
       const v = video(); if (v?.duration) v.currentTime = v.duration;   // 버튼을 못 찾으면 곡 끝으로 → 자동재생이 다음 곡
@@ -96,8 +102,10 @@
       $('.artist').textContent = by;
       if (art && art !== lastArt) { lastArt = art; doc.body.style.setProperty('--art', `url("${art}")`); }
       const v = video();
-      const paused = !v || v.paused;
-      playIco.hidden = !paused; pauseIco.hidden = paused;
+      const paused = !v || v.paused || v.ended;
+      // svg 엔 .hidden 프로퍼티가 없어서(HTML 엘리먼트 전용) 속성을 직접 켜고 끈다
+      playIco.toggleAttribute('hidden', !paused); pauseIco.toggleAttribute('hidden', paused);
+      doc.body.classList.toggle('paused', paused);
       const p = drag ?? (v ? v.currentTime / v.duration : 0);
       bar.style.setProperty('--p', (p * 100 || 0) + '%');
       $('.like').classList.toggle('liked', likeBtn()?.getAttribute('aria-pressed') === 'true');
@@ -107,17 +115,12 @@
     win.addEventListener('pagehide', () => { win.clearInterval(timer); win = null; });
   }
 
-  // Alt+P 가 브라우저 단축키와 페이지 양쪽에서 동시에 들어와도 한 번만
+  // 연타로 열자마자 닫히지 않게
   window.__ytmPipToggle = () => {
     if (Date.now() - lastToggle < 500) return;
     lastToggle = Date.now();
     if (win && !win.closed) win.close(); else open();
   };
-
-  // 확장 단축키가 안 먹는 환경(앱 창, 단축키 충돌)을 위해 페이지에서도 Alt+P 를 받는다
-  document.addEventListener('keydown', e => {
-    if (e.altKey && e.code === 'KeyP' && !e.ctrlKey && !e.metaKey) { e.preventDefault(); window.__ytmPipToggle(); }
-  }, true);
 
   // 크롬 미디어 컨트롤(툴바 ♪)의 PiP 버튼, 그리고 재생 중 다른 탭/창으로 넘어갈 때 자동 PiP 로 연결
   try { navigator.mediaSession.setActionHandler('enterpictureinpicture', open); } catch {}

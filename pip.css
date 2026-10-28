@@ -48,6 +48,11 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,.45);
   transition: transform .5s var(--spring); }
 .card:hover .art { transform: scale(1.02); }
+/* 정지: 아트가 작아지고 흐려지고 배경도 멈춤. 재생 중엔 원래대로 → 아이콘을 안 봐도 상태가 보임 */
+.art { transition: transform .5s var(--spring), filter .4s; }
+.paused .art { transform: scale(.88); filter: grayscale(.7) brightness(.6); }
+.paused .bg { animation-play-state: paused; filter: blur(50px) saturate(.6) brightness(.45); }
+.paused .bar .fill { background: rgba(255,255,255,.55); box-shadow: none; }
 
 .meta { grid-area: meta; min-width: 0; align-self: center; }
 .title { font-weight: 600; font-size: clamp(14px, 3.5vmin, 18px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
